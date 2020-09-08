@@ -1,12 +1,13 @@
+//Luis Cano Irigoyen - A00827178 - 7/Sept/2020
 #include <iostream>
 #include <vector>
 #include <string>
 #include <cstdlib>
 #include <ctime>
-#include <time.h> 
+#include <time.h>
+#include <iomanip> 
 using namespace std;
 
-#include "Timer.h"
 #include "Fraccion.h"
 
 template<class T>
@@ -18,7 +19,6 @@ vector<T> cambio(vector<T> &lista, int a, int b){
 
 template<class T>
 vector<T> ordenaIntercambio(vector<T> lista, int &comparaciones, int &intercambios){
-    Timer tiempo;
     for (int i=0; i<lista.size(); i++){
         for (int j=i+1; j<lista.size(); j++){
             comparaciones++;
@@ -33,7 +33,8 @@ vector<T> ordenaIntercambio(vector<T> lista, int &comparaciones, int &intercambi
 
 template<class T>
 vector<T> ordenaBurbuja(vector<T> lista, int &comparaciones, int &intercambios){
-    Timer tiempo;
+    clock_t start, end;
+    start = clock();
     for (int i=0; i<lista.size()-1; i++){
         for (int j=0; j<lista.size()-i-1; j++){
             comparaciones++;
@@ -43,13 +44,18 @@ vector<T> ordenaBurbuja(vector<T> lista, int &comparaciones, int &intercambios){
             }
         }
     }
+    end = clock();
+    double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
+    cout << "Execution time: " << fixed << time_taken << setprecision(5) << " sec " << endl;
     return lista;
 }
 
 template<class T>
 vector<T> seleccionDirecta(vector<T> lista, int &comparaciones, int &intercambios){
-    Timer tiempo;
-    int min, n, pos;
+    clock_t start, end;
+    start = clock();
+    T min;
+    int pos;
     pos = 0;
     for (int i=0; i<lista.size(); i++){
         min = lista[i];
@@ -63,12 +69,16 @@ vector<T> seleccionDirecta(vector<T> lista, int &comparaciones, int &intercambio
         intercambios++;
         cambio(lista, i, pos);
     }
+    end = clock();
+    double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
+    cout << "Execution time: " << fixed << time_taken << setprecision(5) << " sec " << endl;
     return lista;
 }
 
 template<class T>
 vector<T> ordenaInsercion(vector<T> lista, int &comparaciones, int &intercambios){
-    Timer tiempo;
+    clock_t start, end;
+    start = clock();
     int j;
     for (int i=1; i<lista.size(); i++){
         j = i;
@@ -79,68 +89,71 @@ vector<T> ordenaInsercion(vector<T> lista, int &comparaciones, int &intercambios
             j--;
         }
     }
+    end = clock();
+    double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
+    cout << "Execution time: " << fixed << time_taken << setprecision(5) << " sec " << endl;
     return lista;
 }
 
 template<class T>
-void Merge(vector<T> &lista, int inicio, int medio, int fin){
-    vector<T> listaI;
-    vector<T> listaD;
-    int pos,f1,f2,i,j;
-    pos = inicio;
-    f1 = medio - inicio + 1;
-    f2 = fin - medio;
-    for (i=0; i<f1; i++){
-        listaI.push_back(lista[inicio+1]);
+void Merge(vector<T> &lista, int inicio, int medio, int fin, int &comparaciones){
+    int i, j, k;
+    int f1 = medio - inicio + 1;
+    int f2 = fin - medio;
+    vector<T> izq;
+    vector<T> der;
+    for (i=0; i < f1; i++){
+        izq.push_back(lista[inicio+i]);
     }
-    for (j=0; j<f2; j++){
-        listaD.push_back(lista[medio+1+j]);
+    for (j=0; j < f2; j++){
+        der.push_back(lista[medio+1+j]);
     }
-    i=0;
-    j=0;
-    while(i<f1 && j<f2){
-        if (listaI[i]<=listaD[j]){
-            lista[pos] = listaI[i];
+    i = 0;
+    j = 0;
+    k = inicio;
+    while(i < f1 && j < f2){
+        comparaciones++;
+        if (izq[i] <= der[j]){
+            lista[k] = izq[i];
             i++;
         }else {
-            lista[pos] = listaD[j];
+            lista[k] = der[j];
             j++;
         }
-        pos++;
+        k++;
     }
-    while (i<f1){
-        lista[pos] = listaI[i];
-        i++;
-        pos++;
-    }
-    while (j<f2){
-        lista[pos] = listaD[j];
-        j++;
-        pos++;
-    }
-}
-
-template<class T>
-vector<T> ordenaMerge(vector<T> lista, int inicio, int fin, int &comparaciones){
-    //Timer tiempo;
-    if (inicio < fin) {
+    while (i < f1) { 
         comparaciones++;
-        int medio = (inicio + fin) / 2;
-        ordenaMerge(lista, inicio, medio, comparaciones);
-        ordenaMerge(lista, medio+1, fin, comparaciones);
-
-        Merge(lista, inicio, medio, fin);
-    }
-    return lista;
+        lista[k] = izq[i]; 
+        i++; 
+        k++; 
+    } 
+    while (j < f2) { 
+        comparaciones++;
+        lista[k] = der[j]; 
+        j++; 
+        k++; 
+    } 
 }
 
 template<class T>
-int particion(vector<T> &lista, int inf, int sup){
-    int pivote = lista[sup];
-    int i = (inf - 1);
-    for (size_t j = inf; j <= sup- 1; j++){
+void ordenaMerge(vector<T> &lista, int inicio, int fin, int &comparaciones){
+    if (inicio < fin) { 
+        comparaciones++;
+        int medio = inicio + (fin - inicio) / 2; 
+        ordenaMerge(lista, inicio, medio, comparaciones); 
+        ordenaMerge(lista, medio + 1, fin, comparaciones); 
+        Merge(lista, inicio, medio, fin, comparaciones); 
+    } 
+}
 
-        if (lista[j] < pivote)
+template<class T>
+int particion(vector<T> &lista, int inf, int sup, int &comparaciones){
+    T pivote = lista[sup];
+    int i = (inf - 1);
+    for (int j = inf; j <= sup- 1; j++){
+        comparaciones++;
+        if (lista[j] <= pivote)
         {
             i++;
             cambio(lista, i, j);
@@ -151,34 +164,41 @@ int particion(vector<T> &lista, int inf, int sup){
 }
 
 template <class T>
-vector<T> quickSort(vector<T> lista, int inf, int sup, int &comparaciones){
-    //Timer tiempo;
+void quickSort(vector<T> &lista, int inf, int sup, int &comparaciones){
     if (inf < sup)
     {
-        int pi = particion(lista, inf, sup);
-        quickSort(lista, inf, pi - 1, comparaciones);
-        quickSort(lista, pi + 1, sup, comparaciones);
+        comparaciones++;
+        int pa = particion(lista, inf, sup, comparaciones);
+        quickSort(lista, inf, pa - 1, comparaciones);
+        quickSort(lista, pa + 1, sup, comparaciones);
     }
-    return lista;
 }
 
 template<class T>
-int busquedaSecuencial(vector<T> lista, int n, int &comparaciones){
-    Timer tiempo;
+int busquedaSecuencial(vector<T> lista, T n, int &comparaciones){
+    clock_t start, end;
+    start = clock();
     int pos = 0;
     for (auto i: lista){
         comparaciones++;
         if(i == n){
+            end = clock();
+            double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
+            cout << "Execution time: " << fixed << time_taken << setprecision(5) << " sec " << endl;
             return pos;
         }
         pos++;
     }
+    end = clock();
+    double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
+    cout << "Execution time: " << fixed << time_taken << setprecision(5) << " sec " << endl;
     return -1;
 }
 
 template<class T>
-int busquedaBinaria(vector<T> lista, int n, int &comparaciones){
-    Timer tiempo;
+int busquedaBinaria(vector<T> lista, T n, int &comparaciones){
+    clock_t start, end;
+    start = clock();
     int mid, low, high;
     low = 0;
     high = lista.size();
@@ -190,22 +210,28 @@ int busquedaBinaria(vector<T> lista, int n, int &comparaciones){
         } else if (n > lista[mid]){
             low = mid + 1;
         } else{
+            end = clock();
+            double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
+            cout << "Execution time: " << fixed << time_taken << setprecision(5) << " sec " << endl;
             return mid;
         }
     }
+    end = clock();
+    double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
+    cout << "Execution time: " << fixed << time_taken << setprecision(5) << " sec " << endl;
     return -1;
 }
 
-template<class T>
-void vectorNumerosRand(vector<T> &lista, int cant, int max){
+void vectorNumerosRand(vector<int> &lista, int cant, int max){
+    lista.clear();
     srand (time(NULL));
     for (int i=0; i<cant; i++){
         lista.push_back(rand() % max + 1);
     }
 }
 
-template<class T>
-void vectorCharsRand(vector<T> &lista, int cant){
+void vectorCharsRand(vector<char> &lista, int cant){
+    lista.clear();
     srand (time(NULL));
     int r;
     for (int i=0; i<cant; i++) {
@@ -214,25 +240,29 @@ void vectorCharsRand(vector<T> &lista, int cant){
     }
 }
 
-void vectorFraccRand(vector<Fraccion> &lista, int cantidad) {
+void vectorString(vector<string> &lista, int cantidad, char t) {
     lista.clear();
-    int numerador, denominador;
-    for (int i=0;i<cantidad;i++) {
-        cout << "Teclea el numerador: " << endl;
-        cin >> numerador;
-        cout << "Teclea el denominador: " << endl;
-        cin >> denominador;
-        lista.push_back(Fraccion(numerador,denominador));
+    string valor;
+    if (t == 'c'){
+        for (int i=0;i<cantidad;i++) {
+            cout << "Teclea una palabra: " << endl;
+            cin >> valor;
+            lista.push_back(valor);
+        }
     }
 }
 
-void vectorStringRand(vector<string> &lista, int cantidad) {
+void vectorFracc(vector<Fraccion> &lista, int cantidad, char t) {
     lista.clear();
-    string valor;
-    for (int i=0;i<cantidad;i++) {
-        cout << "Teclea una palabra: " << endl;
-        cin >> valor;
-        lista.push_back(valor);
+    int numerador, denominador;
+    if (t == 'd'){
+        for (int i=0;i<cantidad;i++) {
+            cout << "Teclea el numerador: " << endl;
+            cin >> numerador;
+            cout << "Teclea el denominador: " << endl;
+            cin >> denominador;
+            lista.push_back(Fraccion(numerador,denominador));
+        }
     }
 }
 
@@ -248,21 +278,49 @@ int main()
 {
     int cant, comparaciones, intercambios;
     char opt = 'h';
+    char type = 'a';
     cout << "-- Creacion de Lista --" << endl;
+    cout << "Que tipo de elementos quieres?" << endl;
+    cout << "a - int" << endl;
+    cout << "b - char" << endl;
+    cout << "c - string" << endl;
+    cout << "d - fraccion" <<  endl << ">> ";
+    cin >> type;
     cout << "Cuantos elementos quieres?" << endl << ">> ";
     cin >> cant;
-    vector<int> lista;
-    vectorNumerosRand(lista, cant, 100);
-    // vector<char> lista;
-    // vectorCharsRand(lista, cant);
+    vector<int> listaA;
+    vectorNumerosRand(listaA, cant, 100);
+    vector<char> listaB;
+    vectorCharsRand(listaB, cant);
+    vector<string> listaC;
+    vectorString(listaC, cant, type);
+    vector<Fraccion> listaD;
+    vectorFracc(listaD, cant, type);
 
-    cout << "Lista aleatoria: " << endl;
-    Mostrar(lista);
+    cout << "Lista: " << endl;
+    if (type == 'a') {
+        cout << "int" << endl;
+        Mostrar(listaA);
+    }else if (type == 'b'){
+        cout << "char" << endl;
+        Mostrar(listaB);
+    }else if (type == 'c'){
+        Mostrar(listaC);
+    }else if (type == 'd'){
+        Mostrar(listaD);
+    }else {
+        return 0;
+    }
     cout << endl;
 
-    vector<int> listarand;
-    //vector<char> listarand;
-    listarand = lista;
+    vector<int> listarandA;
+    listarandA = listaA;
+    vector<char> listarandB;
+    listarandB = listaB;
+    vector<string> listarandC;
+    listarandC = listaC;
+    vector<Fraccion> listarandD;
+    listarandD = listaD;
 
     while (opt != 's'){
     if (opt == 'h') {
@@ -276,95 +334,481 @@ int main()
         cout << "f - Quick Sort" << endl;
         cout << "1 - Busqueda Secuencial" << endl;
         cout << "2 - Busqueda Binaria" << endl;
-        cout << "m - Mostrar lista" << endl;
+        cout << "m - Mostrar lista original" << endl;
         cout << "h - Ayuda (mostrar este menu)" << endl;
         cout << "s - Salir" << endl << endl;
     }
     cout << ">> ";
     cin >> opt;
 
-    lista = listarand;
+    listaA = listarandA;
+    listaB = listarandB;
+    listaC = listarandC;
+    listaD = listarandD;
     comparaciones = 0;
     intercambios = 0;
     
     switch(opt){
     case 'a': {
-        lista = ordenaIntercambio(lista, comparaciones, intercambios);
-        cout << "Lista ordenada (Intercambio): " << endl;
-        Mostrar(lista);
-        cout << "Comparaciones: " << comparaciones << endl;
-        cout << "Intercambios: " << intercambios << endl;
+        switch(type){
+        case 'a':{
+            clock_t start, end;
+            start = clock();
+            listaA = ordenaIntercambio(listaA, comparaciones, intercambios);
+            end = clock();
+            double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
+            cout << "Execution time: " << fixed << time_taken << setprecision(5) << " sec " << endl;
+            cout << "Lista ordenada (Intercambio): " << endl;
+            Mostrar(listaA);
+            cout << "Comparaciones: " << comparaciones << endl;
+            cout << "Intercambios: " << intercambios << endl;
+            break;
+        }
+        case 'b': {
+            clock_t start, end;
+            start = clock();
+            listaB = ordenaIntercambio(listaB, comparaciones, intercambios);
+            end = clock();
+            double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
+            cout << "Execution time: " << fixed << time_taken << setprecision(5) << " sec " << endl;
+            cout << "Lista ordenada (Intercambio): " << endl;
+            Mostrar(listaB);
+            cout << "Comparaciones: " << comparaciones << endl;
+            cout << "Intercambios: " << intercambios << endl;
+            break;
+        }
+        case 'c': {
+            clock_t start, end;
+            start = clock();
+            listaC = ordenaIntercambio(listaC, comparaciones, intercambios);
+            end = clock();
+            double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
+            cout << "Execution time: " << fixed << time_taken << setprecision(5) << " sec " << endl;
+            cout << "Lista ordenada (Intercambio): " << endl;
+            Mostrar(listaC);
+            cout << "Comparaciones: " << comparaciones << endl;
+            cout << "Intercambios: " << intercambios << endl;
+            break;
+        }
+        case 'd': {
+            clock_t start, end;
+            start = clock();
+            listaD = ordenaIntercambio(listaD, comparaciones, intercambios);
+            end = clock();
+            double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
+            cout << "Execution time: " << fixed << time_taken << setprecision(5) << " sec " << endl;
+            cout << "Lista ordenada (Intercambio): " << endl;
+            Mostrar(listaD);
+            cout << "Comparaciones: " << comparaciones << endl;
+            cout << "Intercambios: " << intercambios << endl;
+            break;
+        }
+        default:
+            break;
+        }
         break;
     }
     case 'b': {
-        lista = ordenaBurbuja(lista, comparaciones, intercambios);
-        cout << "Lista ordenada (Burbuja): " << endl;
-        Mostrar(lista);
-        cout << "Comparaciones: " << comparaciones << endl;
-        cout << "Intercambios: " << intercambios << endl;
+        switch(type){
+        case 'a':{
+            listaA = ordenaBurbuja(listaA, comparaciones, intercambios);
+            cout << "Lista ordenada (Burbuja): " << endl;
+            Mostrar(listaA);
+            cout << "Comparaciones: " << comparaciones << endl;
+            cout << "Intercambios: " << intercambios << endl;
+            break;
+        }
+        case 'b': {
+            listaB = ordenaBurbuja(listaB, comparaciones, intercambios);
+            cout << "Lista ordenada (Burbuja): " << endl;
+            Mostrar(listaB);
+            cout << "Comparaciones: " << comparaciones << endl;
+            cout << "Intercambios: " << intercambios << endl;
+            break;
+        }
+        case 'c': {
+            listaC = ordenaBurbuja(listaC, comparaciones, intercambios);
+            cout << "Lista ordenada (Burbuja): " << endl;
+            Mostrar(listaC);
+            cout << "Comparaciones: " << comparaciones << endl;
+            cout << "Intercambios: " << intercambios << endl;
+            break;
+        }
+        case 'd': {
+            listaC = ordenaBurbuja(listaC, comparaciones, intercambios);
+            cout << "Lista ordenada (Burbuja): " << endl;
+            Mostrar(listaC);
+            cout << "Comparaciones: " << comparaciones << endl;
+            cout << "Intercambios: " << intercambios << endl;
+            break;
+        }
+        default:
+            listaD = ordenaBurbuja(listaD, comparaciones, intercambios);
+            cout << "Lista ordenada (Burbuja): " << endl;
+            Mostrar(listaD);
+            cout << "Comparaciones: " << comparaciones << endl;
+            cout << "Intercambios: " << intercambios << endl;
+            break;
+        }
         break;
     }
     case 'c': {
-        lista = seleccionDirecta(lista, comparaciones, intercambios);
-        cout << "Lista ordenada (Seleccion Directa): " << endl;
-        Mostrar(lista);
-        cout << "Comparaciones: " << comparaciones << endl;
-        cout << "Intercambios: " << intercambios << endl;
+        switch(type){
+        case 'a':{
+            listaA = seleccionDirecta(listaA, comparaciones, intercambios);
+            cout << "Lista ordenada (Seleccion Directa): " << endl;
+            Mostrar(listaA);
+            cout << "Comparaciones: " << comparaciones << endl;
+            cout << "Intercambios: " << intercambios << endl;
+            break;
+        }
+        case 'b': {
+            listaB = seleccionDirecta(listaB, comparaciones, intercambios);
+            cout << "Lista ordenada (Seleccion Directa): " << endl;
+            Mostrar(listaB);
+            cout << "Comparaciones: " << comparaciones << endl;
+            cout << "Intercambios: " << intercambios << endl;
+            break;
+        }
+        case 'c': {
+            listaC = seleccionDirecta(listaC, comparaciones, intercambios);
+            cout << "Lista ordenada (Seleccion Directa): " << endl;
+            Mostrar(listaC);
+            cout << "Comparaciones: " << comparaciones << endl;
+            cout << "Intercambios: " << intercambios << endl;
+            break;
+        }
+        case 'd': {
+            listaD = seleccionDirecta(listaD, comparaciones, intercambios);
+            cout << "Lista ordenada (Seleccion Directa): " << endl;
+            Mostrar(listaD);
+            cout << "Comparaciones: " << comparaciones << endl;
+            cout << "Intercambios: " << intercambios << endl;
+            break;
+        }
+        default:
+            break;
+        }
         break;
     }
     case 'd': {
-        lista = ordenaInsercion(lista, comparaciones, intercambios);
-        cout << "Lista ordenada (Insercion): " << endl;
-        Mostrar(lista);
-        cout << "Comparaciones: " << comparaciones << endl;
-        cout << "Intercambios: " << intercambios << endl;
+        switch(type){
+        case 'a':{
+            listaA = ordenaInsercion(listaA, comparaciones, intercambios);
+            cout << "Lista ordenada (Insercion): " << endl;
+            Mostrar(listaA);
+            cout << "Comparaciones: " << comparaciones << endl;
+            cout << "Intercambios: " << intercambios << endl;
+            break;
+        }
+        case 'b': {
+            listaB = ordenaInsercion(listaB, comparaciones, intercambios);
+            cout << "Lista ordenada (Insercion): " << endl;
+            Mostrar(listaB);
+            cout << "Comparaciones: " << comparaciones << endl;
+            cout << "Intercambios: " << intercambios << endl;
+            break;
+        }
+        case 'c': {
+            listaC = ordenaInsercion(listaC, comparaciones, intercambios);
+            cout << "Lista ordenada (Insercion): " << endl;
+            Mostrar(listaC);
+            cout << "Comparaciones: " << comparaciones << endl;
+            cout << "Intercambios: " << intercambios << endl;
+            break;
+        }
+        case 'd': {
+            listaD = ordenaInsercion(listaD, comparaciones, intercambios);
+            cout << "Lista ordenada (Insercion): " << endl;
+            Mostrar(listaD);
+            cout << "Comparaciones: " << comparaciones << endl;
+            cout << "Intercambios: " << intercambios << endl;
+            break;
+        }
+        default:
+            break;
+        }
         break;
     }
     case 'e': {
-        lista = ordenaMerge(lista, 0, lista.size(), comparaciones);
-        cout << "Lista ordenada (Merge): " << endl;
-        Mostrar(lista);
-        cout << "Comparaciones: " << comparaciones << endl;
+        switch(type){
+        case 'a':{
+            clock_t start, end;
+            start = clock();
+            ordenaMerge(listaA, 0, listaA.size()-1, comparaciones);
+            end = clock();
+            double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
+            cout << "Execution time: " << fixed << time_taken << setprecision(5) << " sec " << endl;
+            cout << "Lista ordenada (Merge): " << endl;
+            Mostrar(listaA);
+            cout << "Comparaciones: " << comparaciones << endl;
+            break;
+        }
+        case 'b': {
+            clock_t start, end;
+            start = clock();
+            ordenaMerge(listaB, 0, listaA.size()-1, comparaciones);
+            end = clock();
+            double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
+            cout << "Execution time: " << fixed << time_taken << setprecision(5) << " sec " << endl;
+            cout << "Lista ordenada (Merge): " << endl;
+            Mostrar(listaB);
+            cout << "Comparaciones: " << comparaciones << endl;
+            break;
+        }
+        case 'c': {
+            clock_t start, end;
+            start = clock();
+            ordenaMerge(listaC, 0, listaA.size()-1, comparaciones);
+            end = clock();
+            double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
+            cout << "Execution time: " << fixed << time_taken << setprecision(5) << " sec " << endl;
+            cout << "Lista ordenada (Merge): " << endl;
+            Mostrar(listaC);
+            cout << "Comparaciones: " << comparaciones << endl;
+            break;
+        }
+        case 'd': {
+            clock_t start, end;
+            start = clock();
+            ordenaMerge(listaD, 0, listaA.size()-1, comparaciones);
+            end = clock();
+            double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
+            cout << "Execution time: " << fixed << time_taken << setprecision(5) << " sec " << endl;
+            cout << "Lista ordenada (Merge): " << endl;
+            Mostrar(listaD);
+            cout << "Comparaciones: " << comparaciones << endl;
+            break;
+        }
+        default:
+            break;
+        }
         break;
     }
     case 'f': {
-        lista = quickSort(lista, 0, lista.size(), comparaciones);
-        cout << "Lista ordenada (Quick Sort): " << endl;
-        cout << "Comparaciones: " << comparaciones << endl;
+        switch(type){
+        case 'a':{
+            clock_t start, end;
+            start = clock();
+            quickSort(listaA, 0, listaA.size()-1, comparaciones);
+            end = clock();
+            double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
+            cout << "Execution time: " << fixed << time_taken << setprecision(5) << " sec " << endl;
+            cout << "Lista ordenada (Quick Sort): " << endl;
+            Mostrar(listaA);
+            cout << "Comparaciones: " << comparaciones << endl;
+            break;
+        }
+        case 'b': {
+            clock_t start, end;
+            start = clock();
+            quickSort(listaB, 0, listaB.size()-1, comparaciones);
+            end = clock();
+            double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
+            cout << "Execution time: " << fixed << time_taken << setprecision(5) << " sec " << endl;
+            cout << "Lista ordenada (Quick Sort): " << endl;
+            Mostrar(listaB);
+            cout << "Comparaciones: " << comparaciones << endl;
+            break;
+        }
+        case 'c': {
+            clock_t start, end;
+            start = clock();
+            quickSort(listaC, 0, listaC.size()-1, comparaciones);
+            end = clock();
+            double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
+            cout << "Execution time: " << fixed << time_taken << setprecision(5) << " sec " << endl;
+            cout << "Lista ordenada (Quick Sort): " << endl;
+            Mostrar(listaC);
+            cout << "Comparaciones: " << comparaciones << endl;
+            break;
+        }
+        case 'd': {
+            clock_t start, end;
+            start = clock();
+            quickSort(listaD, 0, listaD.size()-1, comparaciones);
+            end = clock();
+            double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
+            cout << "Execution time: " << fixed << time_taken << setprecision(5) << " sec " << endl;
+            cout << "Lista ordenada (Quick Sort): " << endl;
+            Mostrar(listaD);
+            cout << "Comparaciones: " << comparaciones << endl;
+            break;
+        }
+        default:
+            break;
+        }
         break;
     }
     case '1': {
-        int n, pos;
-        cout << "Que numero quieres buscar en la lista? (secuencial) " << endl << ">> ";
-        cin >> n;
-        cout << "Lista:" << endl;
-        Mostrar(lista);
-        pos = busquedaSecuencial(lista, n, comparaciones);
-        if (pos != -1){
-            cout << "Posicion del numero: [" << pos << "]" << endl;
-        }else {
-            cout << "Numero no en la lista" << endl;
+        switch(type){
+        case 'a':{
+            int nA, pos;
+            cout << "Que numero quieres buscar en la lista? (secuencial) " << endl << ">> ";
+            cin >> nA;
+            cout << "Lista:" << endl;
+            Mostrar(listaA);
+            pos = busquedaSecuencial(listaA, nA, comparaciones);
+            if (pos != -1){
+                cout << "Posicion del numero: [" << pos << "]" << endl;
+            }else {
+                cout << "Numero no en la lista" << endl;
+            }
+            break;
+        }
+        case 'b': {
+            char nB;
+            int pos;
+            cout << "Que letra quieres buscar en la lista? (secuencial) " << endl << ">> ";
+            cin >> nB;
+            cout << "Lista:" << endl;
+            Mostrar(listaB);
+            pos = busquedaSecuencial(listaB, nB, comparaciones);
+            if (pos != -1){
+                cout << "Posicion de la letra: [" << pos << "]" << endl;
+            }else {
+                cout << "Letra no en la lista" << endl;
+            }
+            break;
+        }
+        case 'c': {
+            string nC;
+            int pos;
+            cout << "Que palabra quieres buscar en la lista? (secuencial) " << endl << ">> ";
+            cin >> nC;
+            cout << "Lista:" << endl;
+            Mostrar(listaC);
+            pos = busquedaSecuencial(listaC, nC, comparaciones);
+            if (pos != -1){
+                cout << "Posicion de la palabra: [" << pos << "]" << endl;
+            }else {
+                cout << "Palabra no en la lista" << endl;
+            }
+            break;
+        }
+        case 'd': {
+            int numerador, denominador;
+            int pos;
+            cout << "Que fraccion quieres buscar en la lista? (secuencial) " << endl << ">> ";
+            cout << "Teclea el numerador: " << endl;
+            cin >> numerador;
+            cout << "Teclea el denominador: " << endl;
+            cin >> denominador;
+            Fraccion nD(numerador, denominador);
+            cout << "Lista:" << endl;
+            Mostrar(listaD);
+            pos = busquedaSecuencial(listaD, nD, comparaciones);
+            if (pos != -1){
+                cout << "Posicion de la fraccion: [" << pos << "]" << endl;
+            }else {
+                cout << "Fraccion no en la lista" << endl;
+            }
+            break;
+        }
+        default:
+            break;
         }
         break;
     }
     case '2': {
-        int n, pos;
-        lista = ordenaInsercion(lista, comparaciones, intercambios);
-        comparaciones = 0;
-        cout << "Que numero quieres buscar en la lista? (binaria) " << endl << ">> ";
-        cin >> n;
-        cout << "Lista:" << endl;
-        Mostrar(lista);
-        pos = busquedaBinaria(lista, n, comparaciones);
-        if (pos != -1){
-            cout << "Posicion del numero: [" << pos << "]" << endl;
-        }else {
-            cout << "Numero no en la lista" << endl;
+        switch(type){
+        case 'a':{
+            int nA, pos;
+            listaA = ordenaInsercion(listaA, comparaciones, intercambios);
+            comparaciones = 0;
+            cout << "Que numero quieres buscar en la lista? (binaria) " << endl << ">> ";
+            cin >> nA;
+            cout << "Lista:" << endl;
+            Mostrar(listaA);
+            pos = busquedaBinaria(listaA, nA, comparaciones);
+            if (pos != -1){
+                cout << "Posicion del numero: [" << pos << "]" << endl;
+            }else {
+                cout << "Numero no en la lista" << endl;
+            }
+            break;
+        }
+        case 'b': {
+            char nB;
+            int pos;
+            listaB = ordenaInsercion(listaB, comparaciones, intercambios);
+            comparaciones = 0;
+            cout << "Que letra quieres buscar en la lista? (binaria) " << endl << ">> ";
+            cin >> nB;
+            cout << "Lista:" << endl;
+            Mostrar(listaB);
+            pos = busquedaBinaria(listaB, nB, comparaciones);
+            if (pos != -1){
+                cout << "Posicion de la letra: [" << pos << "]" << endl;
+            }else {
+                cout << "Letra no en la lista" << endl;
+            }
+            break;
+        }
+        case 'c': {
+            string nC;
+            int pos;
+            listaC = ordenaInsercion(listaC, comparaciones, intercambios);
+            comparaciones = 0;
+            cout << "Que palabra quieres buscar en la lista? (binaria) " << endl << ">> ";
+            cin >> nC;
+            cout << "Lista:" << endl;
+            Mostrar(listaC);
+            pos = busquedaBinaria(listaC, nC, comparaciones);
+            if (pos != -1){
+                cout << "Posicion de la palabra: [" << pos << "]" << endl;
+            }else {
+                cout << "Palabra no en la lista" << endl;
+            }
+            break;
+        }
+        case 'd': {
+            int numerador, denominador;
+            int pos;
+            listaD = ordenaInsercion(listaD, comparaciones, intercambios);
+            comparaciones = 0;
+            cout << "Que fraccion quieres buscar en la lista? (binaria) " << endl;
+            cout << "Teclea el numerador: " << endl;
+            cin >> numerador;
+            cout << "Teclea el denominador: " << endl;
+            cin >> denominador;
+            Fraccion nD(numerador, denominador);
+            cout << "Lista:" << endl;
+            Mostrar(listaD);
+            pos = busquedaBinaria(listaD, nD, comparaciones);
+            if (pos != -1){
+                cout << "Posicion de la fraccion: [" << pos << "]" << endl;
+            }else {
+                cout << "Fraccion no en la lista" << endl;
+            }
+            break;
+        }
+        default:
+            break;
         }
         break;
     }
     case 'm': {
-        Mostrar(listarand);
+        switch(type){
+        case 'a':{
+            Mostrar(listarandA);
+            break;
+        }
+        case 'b': {
+            Mostrar(listarandB);
+            break;
+        }
+        case 'c': {
+            Mostrar(listarandC);
+            break;
+        }
+        case 'd': {
+            Mostrar(listarandD);
+            break;
+        }
+        default:
+            break;
+        }
         break;
     }
     default:
