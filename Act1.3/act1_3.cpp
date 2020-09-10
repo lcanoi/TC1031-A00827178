@@ -1,3 +1,5 @@
+//Luis Cano Irigoyen  -  A00827178  -  10-Sep-2020  -  TC1031.10
+//Act 1.3 - Actividad Integral de Conceptos Básicos y Algoritmos Fundamentales
 #include <iostream>
 #include <vector>
 #include <string>
@@ -127,7 +129,6 @@ void Merge(vector<datos> &lista, int inicio, int medio, int fin){
     } 
 }
 
-
 //Función recursiva que divide el vector de datos en secciones pequeñas 
 //Estas las vuelve a juntar ordenadas
 void ordenaMergeBitacora(vector<datos> &lista, int inicio, int fin){
@@ -190,7 +191,7 @@ void buscaBinariaBitacora(vector<datos> vec, string mesI, int diaI, int horaI, s
     posF = low;
 }
 
-//Imprime en la terminal las líneas de datos entre las posiciones del vector inicio - fin
+//Imprime en la terminal las líneas de datos entre las posiciones del vector [inicio] - [fin]
 void Muestra(vector<datos> vec, int inicio, int fin){
     for (int i = inicio; i < fin; i++){
         cout << vec[i].mes << " " << vec[i].dia << " " << vec[i].hora << " " <<
@@ -232,7 +233,7 @@ int main()
     cout << "trabajando ..." << endl << endl;
     ordenaMergeBitacora(vDatos, 0, vDatos.size()-1);
     
-    //Almacenamiento en un archivo de los datos ordenados
+    //Almacenamiento de los datos ordenados en un archivo 
     ofstream resultados;
     resultados.open("bOrdenada.txt");
     for (int i = 0; i < vDatos.size(); i++){
@@ -243,6 +244,7 @@ int main()
     //Variables iniciales
     string mesI, mesF;
     int diaI, horaI, diaF, horaF;
+    
     //Interfaz para solicitud de datos
     cout << "   - Sistema de solicitud de registros fallidos -   " << endl;
     cout << "____________________________________________________" << endl << endl;
