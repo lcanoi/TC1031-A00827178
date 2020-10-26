@@ -15,19 +15,11 @@ struct datos {
 };
 
 bool datos::operator<(datos dato){
-    if (ip < dato.ip) {
-        return true;
-    } else {
-        return false;
-    }
+    return ip < dato.ip;
 }
 
 bool datos::operator>(datos dato){
-    if (ip > dato.ip) {
-        return true;
-    } else {
-        return false;
-    }
+    return ip > dato.ip;
 }
 
 #endif
