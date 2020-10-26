@@ -12,19 +12,11 @@ struct accesos {
 };
 
 bool accesos::operator<(accesos acceso){
-    if (cant < acceso.cant) {
-        return true;
-    } else {
-        return false;
-    }
+    return cant < acceso.cant;
 }
 
 bool accesos::operator>(accesos acceso){
-    if (cant > acceso.cant) {
-        return true;
-    } else {
-        return false;
-    }
+    return cant > acceso.cant;
 }
 
 #endif
