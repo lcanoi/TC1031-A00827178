@@ -2,7 +2,6 @@
 // Act 3.4 - Actividad Integral de BST (Evidencia Competencia)
 #include <iostream>
 using namespace std;
-#include <conio.h>
 #include <string>
 #include <fstream>
 #include <chrono>
@@ -93,13 +92,12 @@ int main()
         cout << A.ip << "   " << A.cant << endl;
     }
     
-    cout << endl << "Presiona Enter para continuar...";
-    getch();
-    cout << endl << endl;
+    cout << endl;
+    system("pause");
 
     bitacora.close();
 
-    cout << "... Cerrando programa ..." << endl << endl;
+    cout << endl << "... Cerrando programa ..." << endl << endl;
 
     return 0;
 }
