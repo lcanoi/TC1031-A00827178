@@ -97,6 +97,7 @@ int main()
             }
         }
     }
+    list.pop_back();
 
     //Creación de Lista de Adyacencias con todos los IPs de Origen y Destino
     Graph<string> graph(list, n, m);
@@ -112,6 +113,9 @@ int main()
     
     char opt = 'h';
     char optP = 'n';
+    i = 0;
+    bool equal = true;
+    vector<adyacencias> iguales;
     while (opt != 'x') {
         if (opt == 'h') {
             cout << "       -- Menu --       " << endl;
@@ -131,12 +135,27 @@ int main()
                 time_t end_time = chrono::system_clock::to_time_t(end);
                 cout << "Resultados de consulta realizada en - " << ctime(&end_time) << endl;
                 cout << "IP con mas adyacentes:" << endl << endl;
-                cout << "IP  Cantidad" << endl;
+                cout << "IP            Cantidad" << endl;
                 adyacencias A = heapA.remove();
-                cout << A.ipO << "   " << A.cant << endl << endl;
-                cout << "Adyacencias de {" << A.ipO << "}" << endl;
-                graph.printVertice(A.ipO);
-                cout << endl << endl;
+                iguales.push_back(A);
+                cout << A.ipO << "   " << A.cant << endl;
+                while (equal) {
+                    adyacencias B = heapA.remove();
+                    if (A.cant == B.cant) {
+                        iguales.push_back(B);
+                        cout << B.ipO << "   " << B.cant << endl;
+                    } else {
+                        equal = false;
+                    }
+                    i++;
+                }
+                cout << endl;
+                for (int j=0; j < i; j++) {
+                    cout << "Adyacencias de {" << iguales[j].ipO << "}" << endl;
+                    graph.printVertice(iguales[j].ipO);
+                    cout << endl;
+                }
+                cout << endl;
                 system("pause");
                 break;
             }
