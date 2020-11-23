@@ -1,3 +1,5 @@
+// Luis Cano Irigoyen  -  A00827178  -  22-Nov-2020  -  TC1031.10
+// Act 4.3 - Actividad Integral de Grafos (Evidencia Competencia)
 #include <iostream>
 #include <algorithm>
 #include <queue>
@@ -19,7 +21,9 @@ using namespace std;
 //Puede ordenarse de manera ascendiente o descendiente
 template<class T>
 void HeapSort(DoublyLinkedList<T>& list, char order) {
+    cout << "ya" << endl;
     Heap<T> heapAux(list);
+    cout << "ya" << endl;
     list.clear();
     while (!heapAux.isEmpty()) {
         if (order == 'a') {
@@ -98,7 +102,7 @@ int main()
         }
     }
     list.pop_back();
-
+    
     //Creación de Lista de Adyacencias con todos los IPs de Origen y Destino
     Graph<string> graph(list, n, m);
 
